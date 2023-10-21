@@ -1,5 +1,7 @@
 import http, { IncomingMessage, ServerResponse } from 'node:http';
 import fs from 'node:fs/promises';
+import * as crypto from "node:crypto"
+import { success } from './dynamicHTML';
 
 async function handleRequest(request: IncomingMessage, response: ServerResponse) {
   const url = request.url;
@@ -57,6 +59,20 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
     //   .writeHead(500, { 'Content-Type': 'text/plain' })
     //   .end('Having trouble reading the index. Error: ' + error);
     // }
+  } else if (url === '/success-page') {
+    const token = crypto.randomBytes(32).toString('base64url');
+    
+    try {
+      // await pool.query(query, values);
+
+      response
+        .writeHead(200, { 'Content-Type': 'text/html' })
+        .end(success(token));
+    } catch (error) {
+      response
+      .writeHead(500, { 'Content-Type': 'text/plain' })
+      .end('Having trouble reading the index. Error: ' + error);
+    }
   } else {
     response
       .writeHead(500, { 'Content-Type': 'text/html' })
