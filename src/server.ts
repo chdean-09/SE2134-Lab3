@@ -8,11 +8,55 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
   console.log('Debugging -- url is', url, 'while method is', method);
 
   if (url === '/animal-clinic') {
-    const contents = await fs.readFile("./index.html", "utf-8");
+    try {
+      const contents = await fs.readFile("./index.html", "utf-8");
 
-    response
-      .writeHead(200, { 'Content-Type': 'text/html' })
-      .end(contents.toString());
+      response
+        .writeHead(200, { 'Content-Type': 'text/html' })
+        .end(contents.toString());
+    } catch (error) {
+      response
+      .writeHead(500, { 'Content-Type': 'text/plain' })
+      .end('Having trouble reading the index. Error: ' + error);
+    }
+  } else if (url === '/new-patient') {
+    try {
+      const contents = await fs.readFile("./new-patient.html", "utf-8");
+
+      response
+        .writeHead(200, { 'Content-Type': 'text/html' })
+        .end(contents.toString());
+    } catch (error) {
+      response
+      .writeHead(500, { 'Content-Type': 'text/plain' })
+      .end('Having trouble reading the index. Error: ' + error);
+    }
+  } else if (url === '/update-patient') {
+    // no code here for now
+    // try {
+    //   const contents = await fs.readFile("./update-patient.html", "utf-8");
+
+    //   response
+    //     .writeHead(200, { 'Content-Type': 'text/html' })
+    //     .end(contents.toString());
+    // } catch (error) {
+    //   response
+    //   .writeHead(500, { 'Content-Type': 'text/plain' })
+    //   .end('Having trouble reading the index. Error: ' + error);
+    // }
+  } else if (url === '/patients') {
+    // no code here yet, just a placeholder
+    // try {
+    //   const contents = await fs.readFile("./index.html", "utf-8");
+
+    //   response
+    //     .writeHead(200, { 'Content-Type': 'text/html' })
+    //     .end(contents.toString());
+    // } catch (error) {
+    //   response
+    //   .writeHead(500, { 'Content-Type': 'text/plain' })
+    //   .end('Having trouble reading the index. Error: ' + error);
+    // }
   } else {
     response
       .writeHead(500, { 'Content-Type': 'text/html' })
