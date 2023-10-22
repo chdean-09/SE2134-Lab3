@@ -98,7 +98,6 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       .end('Having trouble reading the index. Error: ' + error);
     }
   } else if (url === '/success-update' && method === 'POST') {
-    const date = new Date();
     let requestUpdate = '';
 
     try {
@@ -107,6 +106,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
           requestUpdate += chunk.toString();
         })
         .on('end', () => {
+          const date = new Date();
           const updatedData = querystring.parse(requestUpdate);
           
           const query = `

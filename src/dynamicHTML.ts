@@ -47,7 +47,7 @@ export function updatePatient(patientInfo: Patients) {
     Created on: ${patientInfo.created_at}<br>
     Last Updated on: ${updatedInfoLogic(patientInfo.updated_at)}<br>
     <br>
-    <form action="/success-update" method="POST">
+    <form action="/success-update" method="POST" onsubmit="return validateForm()">
       Name: <input type="text" name="name" value="${patientInfo.name}"><br>
       Species: <input type="text" name="species" value="${patientInfo.species}"><br>
       Age (In human years): <input type="text" name="age" value="${patientInfo.age}"><br>
@@ -60,6 +60,21 @@ export function updatePatient(patientInfo: Patients) {
     <button onclick="location.href = '/animal-clinic';">
       Go back
     </button>
+    <script>
+      function validateForm() {
+        if (
+          document.querySelector('input[name="name"]').value === "${patientInfo.name}" &&
+          document.querySelector('input[name="species"]').value === "${patientInfo.species}" &&
+          document.querySelector('input[name="age"]').value === "${patientInfo.age}" &&
+          document.querySelector('input[name="sickness"]').value === "${patientInfo.sickness}"
+        ) {
+          alert("No changes detected, cannot update info.");
+          return false;
+        } else {
+          return true;
+        }
+      }
+    </script>
   </body>
   </html>
   `
