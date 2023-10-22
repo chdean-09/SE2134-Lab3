@@ -135,7 +135,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       .end('Having trouble reading the index. Error: ' + error);
     }
   } else if (url === '/patients') {
-    null; //no code yet
+    null;
   } else {
     response
       .writeHead(500, { 'Content-Type': 'text/html' })
