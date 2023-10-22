@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import * as crypto from 'node:crypto';
 import * as querystring from 'node:querystring';
 import pool from './database';
-import { success, updatePatient } from './dynamicHTML';
+import { success, updatePatient, updateSuccess } from './dynamicHTML';
 
 async function handleRequest(request: IncomingMessage, response: ServerResponse) {
   const url = request.url;
@@ -59,19 +59,6 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
         .writeHead(500, { 'Content-Type': 'text/plain' })
         .end('Invalid Token. Stop snooping around o_o');
     }
-  } else if (url === '/patients') {
-    // no code here yet, just a placeholder
-    // try {
-    //   const contents = await fs.readFile("./index.html", "utf-8");
-
-    //   response
-    //     .writeHead(200, { 'Content-Type': 'text/html' })
-    //     .end(contents.toString());
-    // } catch (error) {
-    //   response
-    //   .writeHead(500, { 'Content-Type': 'text/plain' })
-    //   .end('Having trouble reading the index. Error: ' + error);
-    // }
   } else if (url === '/success-page' && method === 'POST') {
     const token = crypto.randomBytes(32).toString('base64url');
     
@@ -110,6 +97,45 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       .writeHead(500, { 'Content-Type': 'text/plain' })
       .end('Having trouble reading the index. Error: ' + error);
     }
+  } else if (url === '/success-update' && method === 'POST') {
+    const date = new Date();
+    let requestUpdate = '';
+
+    try {
+      request
+        .on('data', (chunk) => {
+          requestUpdate += chunk.toString();
+        })
+        .on('end', () => {
+          const updatedData = querystring.parse(requestUpdate);
+          
+          const query = `
+            UPDATE patients
+            SET name = $1, species = $2, age = $3, sickness = $4, updated_at = NOW()
+            WHERE token = $5
+          `;
+      
+          const values = [
+            updatedData.name!,
+            updatedData.species!,
+            Number(updatedData.age)!,
+            updatedData.sickness!,
+            updatedData.token!
+          ]
+
+          pool.query(query, values);
+
+          response
+          .writeHead(200, { 'Content-Type': 'text/html' })
+          .end(updateSuccess(date));
+        });
+    } catch (error) {
+      response
+      .writeHead(500, { 'Content-Type': 'text/plain' })
+      .end('Having trouble reading the index. Error: ' + error);
+    }
+  } else if (url === '/patients') {
+    null; //no code yet
   } else {
     response
       .writeHead(500, { 'Content-Type': 'text/html' })

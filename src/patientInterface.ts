@@ -5,6 +5,6 @@ export default interface Patients {
   age: string;
   sickness: string;
   created_at: string;
-  updated_at?: string;
+  updated_at: string | null;
   token: string;
 }
