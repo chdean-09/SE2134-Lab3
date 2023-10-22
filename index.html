@@ -8,7 +8,12 @@
 <body>
   <h1>Welcome to the best animal clinic in the Philippines!</h1>
   Admit a new patient: <button onclick="location.href='/new-patient';">New Patient</button><br><br>
-  Update patient info: <button onclick="location.href='/update-patient';">Update Patient</button><br><br>
+  <form action="/update-patient">
+    Enter patient token: <input type="text" name="token" required>
+    <button type="submit">Update</button>
+    <button type="reset">Reset</button>
+  </form>
+  <br>  
   (Admin Only) View all patient infos: <button onclick="location.href='/patients';">Patients</button>
 </body>
 </html>

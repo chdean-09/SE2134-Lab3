@@ -1,6 +1,8 @@
 import http, { IncomingMessage, ServerResponse } from 'node:http';
 import fs from 'node:fs/promises';
-import * as crypto from "node:crypto"
+import * as crypto from 'node:crypto';
+import * as querystring from 'node:querystring';
+import pool from './database';
 import { success } from './dynamicHTML';
 
 async function handleRequest(request: IncomingMessage, response: ServerResponse) {
@@ -33,19 +35,31 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       .writeHead(500, { 'Content-Type': 'text/plain' })
       .end('Having trouble reading the index. Error: ' + error);
     }
-  } else if (url === '/update-patient') {
-    // no code here for now
-    // try {
-    //   const contents = await fs.readFile("./update-patient.html", "utf-8");
+  } else if (url?.startsWith('/update-patient')) {
+    const myUrl = new URL(url, 'http://localhost');
 
-    //   response
-    //     .writeHead(200, { 'Content-Type': 'text/html' })
-    //     .end(contents.toString());
-    // } catch (error) {
-    //   response
-    //   .writeHead(500, { 'Content-Type': 'text/plain' })
-    //   .end('Having trouble reading the index. Error: ' + error);
-    // }
+    const tokenInput = myUrl.searchParams.get('token')!;
+
+    const query = `
+      SELECT * FROM patients
+      WHERE token = $1
+    `;
+
+    const value = [tokenInput];
+
+    try {
+      const result = await pool.query(query, value);
+      const patientInfo = result.rows[0];
+      console.log(result, patientInfo);
+
+      response
+      .writeHead(200, { 'Content-Type': 'text/plain' })
+      .end('nice');
+    } catch (error) {
+      response
+      .writeHead(500, { 'Content-Type': 'text/plain' })
+      .end('Invalid Token. Stop snooping around o_o');
+    }
   } else if (url === '/patients') {
     // no code here yet, just a placeholder
     // try {
@@ -59,15 +73,39 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
     //   .writeHead(500, { 'Content-Type': 'text/plain' })
     //   .end('Having trouble reading the index. Error: ' + error);
     // }
-  } else if (url === '/success-page') {
+  } else if (url === '/success-page' && method === 'POST') {
     const token = crypto.randomBytes(32).toString('base64url');
     
-    try {
-      // await pool.query(query, values);
+    let requestData = '';
 
-      response
-        .writeHead(200, { 'Content-Type': 'text/html' })
-        .end(success(token));
+    try {
+      request
+        .on('data', (chunk) => {
+          requestData += chunk.toString();
+        })
+        .on('end', () => {
+          const data = querystring.parse(requestData);
+          
+          const query = `
+            INSERT INTO patients
+            (name, species, age, sickness, created_at, token)
+            VALUES ($1, $2, $3, $4, NOW(), $5)
+          `;
+      
+          const values = [
+            data.name!,
+            data.species!,
+            Number(data.age)!,
+            data.sickness!,
+            token!
+          ]
+
+          pool.query(query, values);
+
+          response
+          .writeHead(200, { 'Content-Type': 'text/html' })
+          .end(success(values));
+        });
     } catch (error) {
       response
       .writeHead(500, { 'Content-Type': 'text/plain' })

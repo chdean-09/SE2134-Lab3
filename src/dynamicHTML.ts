@@ -1,4 +1,6 @@
-export function success(token: string) {
+export function success(values: (string | number | string[])[]) {
+  const [name, species, age, sickness, token] = values;
+
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -14,6 +16,10 @@ export function success(token: string) {
     Save this unique token for your visit to be able to update info if necessary.<br>
     <br>
     Token: ${token}<br>
+    Name: ${name}<br>
+    Species: ${species}<br>
+    Age: ${age}<br>
+    Sickness: ${sickness}<br>
 
     <button onclick="location.href = '/animal-clinic';">
       Go back
