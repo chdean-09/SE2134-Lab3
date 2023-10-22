@@ -6,10 +6,10 @@
   <title>Admit Patient - Animal Clinic</title>
 </head>
 <body>
-  <form action="/success-page" method="POST">
+  <form action="/success-page" method="POST" onsubmit="return validateAge()">
     Name: <input type="text" name="name" required><br>
     Species: <input type="text" name="species" required><br>
-    Age: <input type="text" name="age" required><br>
+    Age (In human years): <input type="text" name="age" id="age" required><br>
     Sickness: <input type="text" name="sickness" required><br>
     <br>
     <button type="submit">Submit</button>
@@ -18,5 +18,17 @@
   <button onclick="location.href = '/animal-clinic';">
     Go back
   </button>
+  <script>
+    function validateAge() {
+      const ageInput = document.getElementById("age").value.trim();
+
+      if (Number.isInteger(Number(ageInput)) && ageInput !== '') {
+        return true;
+      } else {
+        alert('Age must be an integer!');
+        return false;
+      }
+    }
+  </script>
 </body>
 </html>

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import * as crypto from 'node:crypto';
 import * as querystring from 'node:querystring';
 import pool from './database';
-import { success } from './dynamicHTML';
+import { success, updatePatient } from './dynamicHTML';
 
 async function handleRequest(request: IncomingMessage, response: ServerResponse) {
   const url = request.url;
@@ -50,15 +50,14 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
     try {
       const result = await pool.query(query, value);
       const patientInfo = result.rows[0];
-      console.log(result, patientInfo);
 
       response
-      .writeHead(200, { 'Content-Type': 'text/plain' })
-      .end('nice');
+        .writeHead(200, { 'Content-Type': 'text/html' })
+        .end(updatePatient(patientInfo));
     } catch (error) {
       response
-      .writeHead(500, { 'Content-Type': 'text/plain' })
-      .end('Invalid Token. Stop snooping around o_o');
+        .writeHead(500, { 'Content-Type': 'text/plain' })
+        .end('Invalid Token. Stop snooping around o_o');
     }
   } else if (url === '/patients') {
     // no code here yet, just a placeholder
