@@ -1,5 +1,15 @@
 import Patients from './patientInterface';
 
+// minor logic for update date
+function updatedInfoLogic(updateDate: string | null) {
+  if (updateDate === null) {
+    return `Never`;
+  } else {
+    return updateDate;
+  }
+};
+
+// succesfully added the info to the db
 export function success(values: (string | number | string[])[]) {
   const [name, species, age, sickness, token] = values;
 
@@ -15,9 +25,11 @@ export function success(values: (string | number | string[])[]) {
   
   <body>
     Your animal has been successfully added. Thank you for choosing our services!<br>
-    Save this unique token for your visit to be able to update info if necessary.<br>
-    <br>
-    Token: ${token}<br>
+    Save this unique token to be able to update patient info if necessary.<br>
+    <span style="font-weight: bold;">
+      Token: ${token}<br>
+    </span><br>
+    Patient Info Summary:<br>
     Name: ${name}<br>
     Species: ${species}<br>
     Age (In human years): ${age}<br>
@@ -31,6 +43,7 @@ export function success(values: (string | number | string[])[]) {
   `
 };
 
+// dynamic html for update patient UI
 export function updatePatient(patientInfo: Patients) {
   return `
   <!DOCTYPE html>
@@ -80,14 +93,8 @@ export function updatePatient(patientInfo: Patients) {
   `
 };
 
-function updatedInfoLogic(updateDate: string | null) {
-  if (updateDate === null) {
-    return `Never`;
-  } else {
-    return updateDate;
-  }
-};
 
+// succesfully updated patient info
 export function updateSuccess(date: Date) {
   return `
   <!DOCTYPE html>
@@ -111,6 +118,7 @@ export function updateSuccess(date: Date) {
   `
 };
 
+// display all the patients info
 export function allPatientsInfo(patients: Patients[]) {
   let number = 1;
   let html = `
@@ -132,7 +140,7 @@ export function allPatientsInfo(patients: Patients[]) {
     Age: ${Number(patient.age)}<br>
     Sickness: ${patient.sickness}<br>
     Created on: ${patient.created_at}<br>
-    last updated on: ${updatedInfoLogic(patient.updated_at)}<br>
+    Last updated on: ${updatedInfoLogic(patient.updated_at)}<br>
     <br>
   `
   number++;

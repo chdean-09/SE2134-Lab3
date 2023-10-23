@@ -1,3 +1,5 @@
+// interface for the Patients object to prevent any or any[] type
+
 export default interface Patients {
   id: number;
   name: string;
@@ -7,4 +9,4 @@ export default interface Patients {
   created_at: string;
   updated_at: string | null;
   token: string;
-}
+};

@@ -12,6 +12,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
   console.log('Debugging -- url is', url, 'while method is', method);
 
   if (url === '/animal-clinic') {
+    // main menu / homepage
     try {
       const contents = await fs.readFile("./index.html", "utf-8");
 
@@ -24,6 +25,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       .end('Having trouble reading the index. Error: ' + error);
     }
   } else if (url === '/new-patient') {
+    // shows the forms for adding a patient
     try {
       const contents = await fs.readFile("./new-patient.html", "utf-8");
 
@@ -35,31 +37,8 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       .writeHead(500, { 'Content-Type': 'text/plain' })
       .end('Having trouble reading the html form. Error: ' + error);
     }
-  } else if (url?.startsWith('/update-patient')) {
-    const myUrl = new URL(url, 'http://localhost');
-
-    const tokenInput = myUrl.searchParams.get('token')!;
-
-    const query = `
-      SELECT * FROM patients
-      WHERE token = $1
-    `;
-
-    const value = [tokenInput];
-
-    try {
-      const result = await pool.query(query, value);
-      const patientInfo = result.rows[0];
-
-      response
-        .writeHead(200, { 'Content-Type': 'text/html' })
-        .end(updatePatient(patientInfo));
-    } catch (error) {
-      response
-        .writeHead(500, { 'Content-Type': 'text/plain' })
-        .end('Invalid Token. Stop snooping around o_o');
-    }
   } else if (url === '/success-page' && method === 'POST') {
+    // successfully added a patient to the db
     const token = crypto.randomBytes(32).toString('base64url');
     
     let requestData = '';
@@ -97,7 +76,33 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       .writeHead(500, { 'Content-Type': 'text/plain' })
       .end('Having trouble adding the patient to database. Error: ' + error);
     }
+  } else if (url?.startsWith('/update-patient')) {
+    // shows the dynamic html for updating patient info
+    const myUrl = new URL(url, 'http://localhost');
+
+    const tokenInput = myUrl.searchParams.get('token')!;
+
+    const query = `
+      SELECT * FROM patients
+      WHERE token = $1
+    `;
+
+    const value = [tokenInput];
+
+    try {
+      const result = await pool.query(query, value);
+      const patientInfo = result.rows[0];
+
+      response
+        .writeHead(200, { 'Content-Type': 'text/html' })
+        .end(updatePatient(patientInfo));
+    } catch (error) {
+      response
+        .writeHead(500, { 'Content-Type': 'text/plain' })
+        .end('Invalid Token. Stop snooping around o_o');
+    }
   } else if (url === '/success-update' && method === 'POST') {
+    // successfully updated user info
     let requestUpdate = '';
 
     try {
@@ -135,6 +140,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       .end('Having trouble updating patient info. Error: ' + error);
     }
   } else if (url === '/patients') {
+    // displays all the patients info
     const query = `
       SELECT * FROM patients
       ORDER BY id ASC
@@ -155,7 +161,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
   } else {
     response
       .writeHead(500, { 'Content-Type': 'text/html' })
-      .end('The (unexpected) url is: ' + url + '. Maybe try double checking the url? <a href="/animal-clinic">This should be the correct link.</a>');
+      .end('The (unexpected) url is: ' + url + '. Maybe try double checking the url? <a href="/animal-clinic">Click here to redirect to homepage.</a>');
   }
 }
 
