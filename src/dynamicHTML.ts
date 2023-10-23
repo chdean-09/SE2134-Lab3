@@ -39,7 +39,7 @@ export function updatePatient(patientInfo: Patients) {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Success - Animal Clinic</title>
+    <title>Update Info - Animal Clinic</title>
   </head>
   
   <body>
@@ -96,7 +96,7 @@ export function updateSuccess(date: Date) {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Success - Animal Clinic</title>
+    <title>Update Success - Animal Clinic</title>
   </head>
   
   <body>
@@ -109,4 +109,42 @@ export function updateSuccess(date: Date) {
   </body>
   </html>
   `
+};
+
+export function allPatientsInfo(patients: Patients[]) {
+  let number = 1;
+  let html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loaner Details</title>
+  </head>
+  
+  <body>
+  `;
+
+  patients.forEach((patient) => {html +=`
+    ${number}. <span style="font-weight: bold;">${patient.name}</span> (Token: ${patient.token})<br>
+    Species: ${patient.species}<br>
+    Age: ${Number(patient.age)}<br>
+    Sickness: ${patient.sickness}<br>
+    Created on: ${patient.created_at}<br>
+    last updated on: ${updatedInfoLogic(patient.updated_at)}<br>
+    <br>
+  `
+  number++;
+  });
+
+  html += `
+  <button onclick="location.href = '/animal-clinic';">
+    Go back
+  </button>
+  </body>
+  </html>
+  `;
+
+  return html;
 };

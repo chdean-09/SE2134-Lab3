@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import * as crypto from 'node:crypto';
 import * as querystring from 'node:querystring';
 import pool from './database';
-import { success, updatePatient, updateSuccess } from './dynamicHTML';
+import { success, updatePatient, updateSuccess, allPatientsInfo } from './dynamicHTML';
 
 async function handleRequest(request: IncomingMessage, response: ServerResponse) {
   const url = request.url;
@@ -33,7 +33,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
     } catch (error) {
       response
       .writeHead(500, { 'Content-Type': 'text/plain' })
-      .end('Having trouble reading the index. Error: ' + error);
+      .end('Having trouble reading the html form. Error: ' + error);
     }
   } else if (url?.startsWith('/update-patient')) {
     const myUrl = new URL(url, 'http://localhost');
@@ -95,7 +95,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
     } catch (error) {
       response
       .writeHead(500, { 'Content-Type': 'text/plain' })
-      .end('Having trouble reading the index. Error: ' + error);
+      .end('Having trouble adding the patient to database. Error: ' + error);
     }
   } else if (url === '/success-update' && method === 'POST') {
     let requestUpdate = '';
@@ -132,10 +132,26 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
     } catch (error) {
       response
       .writeHead(500, { 'Content-Type': 'text/plain' })
-      .end('Having trouble reading the index. Error: ' + error);
+      .end('Having trouble updating patient info. Error: ' + error);
     }
   } else if (url === '/patients') {
-    null;
+    const query = `
+      SELECT * FROM patients
+      ORDER BY id ASC
+    `;
+
+    try {
+      const result = await pool.query(query);
+      const allPatients = result.rows;
+
+      response
+        .writeHead(200, { 'Content-Type': 'text/html' })
+        .end(allPatientsInfo(allPatients));
+    } catch (error) {
+      response
+        .writeHead(500, { 'Content-Type': 'text/plain' })
+        .end('Cannot retrieve all the patient infos. Error: ' + error);
+    }
   } else {
     response
       .writeHead(500, { 'Content-Type': 'text/html' })
