@@ -50,6 +50,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
         })
         .on('end', () => {
           const data = querystring.parse(requestData);
+          const date = new Date();
           
           const query = `
             INSERT INTO patients
@@ -69,38 +70,43 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
 
           response
           .writeHead(200, { 'Content-Type': 'text/html' })
-          .end(success(values));
+          .end(success(values, date));
         });
     } catch (error) {
       response
       .writeHead(500, { 'Content-Type': 'text/plain' })
       .end('Having trouble adding the patient to database. Error: ' + error);
     }
-  } else if (url?.startsWith('/update-patient')) {
+  } else if (url === '/update-patient' && method === 'POST') {
     // shows the dynamic html for updating patient info
-    const myUrl = new URL(url, 'http://localhost');
 
-    const tokenInput = myUrl.searchParams.get('token')!;
-
-    const query = `
-      SELECT * FROM patients
-      WHERE token = $1
-    `;
-
-    const value = [tokenInput];
+    let tokenInput = '';
 
     try {
-      const result = await pool.query(query, value);
-      const patientInfo = result.rows[0];
+      request
+        .on('data', (chunk) => {
+          tokenInput += chunk.toString();
+        })
+        .on('end', async () => {
+          const query = `
+            SELECT * FROM patients
+            WHERE token = $1
+          `;
 
-      response
-        .writeHead(200, { 'Content-Type': 'text/html' })
-        .end(updatePatient(patientInfo));
+          const token = tokenInput.slice(6);
+
+          const result = await pool.query(query, [token]);
+          const patientInfo = result.rows[0];
+          
+          response
+            .writeHead(200, { 'Content-Type': 'text/html' })
+            .end(updatePatient(patientInfo));
+        })
     } catch (error) {
       response
         .writeHead(500, { 'Content-Type': 'text/plain' })
         .end('Invalid Token. Stop snooping around o_o');
-    }
+    };
   } else if (url === '/success-update' && method === 'POST') {
     // successfully updated user info
     let requestUpdate = '';

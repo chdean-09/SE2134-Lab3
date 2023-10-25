@@ -10,7 +10,7 @@ function updatedInfoLogic(updateDate: string | null) {
 };
 
 // succesfully added the info to the db
-export function success(values: (string | number | string[])[]) {
+export function success(values: (string | number | string[])[], date: Date) {
   const [name, species, age, sickness, token] = values;
 
   return `
@@ -28,7 +28,9 @@ export function success(values: (string | number | string[])[]) {
     Save this unique token to be able to update patient info if necessary.<br>
     <span style="font-weight: bold;">
       Token: ${token}<br>
-    </span><br>
+    </span>
+    Time and Date Created: ${date}<br>
+    <br>
     Patient Info Summary:<br>
     Name: ${name}<br>
     Species: ${species}<br>
@@ -56,6 +58,9 @@ export function updatePatient(patientInfo: Patients) {
   </head>
   
   <body>
+  <span style="font-weight: bold;">
+    UPDATE PATIENT INFO
+  </span><br><br>
     Token: ${patientInfo.token}<br>
     Created on: ${patientInfo.created_at}<br>
     Last Updated on: ${updatedInfoLogic(patientInfo.updated_at)}<br>
@@ -128,10 +133,12 @@ export function allPatientsInfo(patients: Patients[]) {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loaner Details</title>
+    <title>All Patient Details</title>
   </head>
   
   <body>
+  <span style="font-weight: bold;">PATIENT INFOS FROM THE DATABASE:</span><br>
+  <br>
   `;
 
   patients.forEach((patient) => {html +=`
@@ -142,8 +149,8 @@ export function allPatientsInfo(patients: Patients[]) {
     Created on: ${patient.created_at}<br>
     Last updated on: ${updatedInfoLogic(patient.updated_at)}<br>
     <br>
-  `
-  number++;
+    `
+    number++;
   });
 
   html += `
